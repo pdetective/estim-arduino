@@ -1,0 +1,10 @@
+#!/bin/bash
+# TODO: document this
+
+dev=${1:-/dev/ttyACM0}
+stty -F $dev 115200 cs8 min 1 -cstopb -parenb
+
+cat $dev &
+pid=$!
+arecord -f U8 -t raw -r 12000 -N > $dev
+kill $pid
