@@ -1,6 +1,10 @@
 Shopping list
 =============
 
+The total budget should be under $100, probably closer to $50 if you buy from
+AliExpress.
+
+
 Test gear (some is required)
 ----------------------------
 
@@ -23,8 +27,6 @@ the ~60V output.
 Power unit supplies
 -------------------
 
-Total budget: under $40
-
 - 1x [USB power
   meter](https://www.aliexpress.com/item/USB-Digital-Power-Meter-Tester-battery-capacity-tester-Current-Voltage-Monitor-DC-5A-9V-Voltage-Power/32888681113.html):
   $2. Always use this and keep an eye on the current. Idle should be around 0.02
@@ -46,6 +48,10 @@ Total budget: under $40
 - 1x [boost converter
   module](https://www.aliexpress.com/item/1PCS-XL6009-Boost-Converter-Step-Up-Adjustable-15W-5-32V-to-5-50V-DC-DC-Power/32807346491.html):
   $1.
+
+- 1x [volume
+  knob](https://www.aliexpress.com/item/5pcs-WH148-B1K-B2K-B5K-B10K-B20K-B50K-B100K-B500K-3Pin-15mm-Shaft-Amplifier-Dual-Stereo/32846573934.html):
+  $1 for five; I use 10K but any value offered will probably work.
 
 - [Hookup wire](https://www.amazon.com/dp/B00KAE3NTQ/) if you don't already have
   some. Nothing special, it just needs to be solid core and small enough to fit

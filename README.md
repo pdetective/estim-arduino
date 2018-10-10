@@ -6,13 +6,13 @@ The Hardware
 
 Core concepts worth thinking about:
 
-- [Quick guide to electrical theory (todo)](doc/electrical-theory.md)
-- [How not to die (todo)](doc/how-not-to-die.md)
-- [How not to hurt yourself (todo)](doc/how-not-to-hurt-yourself.md)
+- [Quick guide to electrical theory](doc/electrical-theory.md)
+- [How not to die](doc/how-not-to-die.md)
+- [How not to hurt yourself](doc/how-not-to-hurt-yourself.md)
 
 Building the L298N board:
 
-- [Shopping list (done)](doc/shopping-list.md)
+- [Shopping list](doc/shopping-list.md)
 - [Electrical connections (todo)](doc/schematic.md)
 
 
