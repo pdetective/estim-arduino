@@ -13,7 +13,7 @@ Core concepts worth thinking about:
 Building the L298N board:
 
 - [Shopping list](doc/shopping-list.md)
-- [Electrical connections (todo)](doc/schematic.md)
+- [Electrical connections](doc/schematic.md)
 
 
 The Software
