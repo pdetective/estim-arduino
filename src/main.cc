@@ -19,7 +19,7 @@ Mapping each sample to PWM duty
 A sample value of 128 is silence; 255 and 0 are the extremes. I handle this
 inside `sqrt_map`, which is a precomputed table of values for this function:
 
-  sqrt_map[i] == (int) (256.0 * sqrt(abs(i - 128) / 128.0))
+  sqrt_map[i] == (unsigned char) (255.0 * sqrt(abs(i - 128) / 128.0))
 
 I've personally found sqrt to be helpful; it seems to result in a less spiky
 signal. Your mileage may vary, though; if you want to try a linear version, you
