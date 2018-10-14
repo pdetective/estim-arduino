@@ -19,7 +19,7 @@ This EStim board is mostly software. Here's how the hardware works:
         |             |          |     |   |                |
         |          5V |---+------+-----+---| Vss       OUT2 |---470nF--- you
         |             |   |      |     |   |                |
-        |          A0 |--VOL     |   100nF |                |
+        |          A5 |--VOL     |   100nF |                |
         |             |   |     5kΩ    |   |                |
 USB --> | Arduino     |  GND     |    GND  |                |
         |             |          |         |                |

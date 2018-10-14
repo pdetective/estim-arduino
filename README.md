@@ -14,12 +14,14 @@ Building the L298N board:
 
 - [Shopping list](doc/shopping-list.md)
 - [Electrical connections](doc/schematic.md)
+- [Building the board](doc/build.md)
 
 
 The Software
 ------------
 
-TODO
+- [Technical description in source](src/main.cc)
+- [How to build and upload to arduino](doc/platformio.md)
 
 
 Audio interop

@@ -1,19 +1,116 @@
-// TODO: document this
+/*
+
+The general idea
+================
+
+Read 8-bit audio samples over the arduino serial input, multiply by the current
+volume, and then use them to set the PWM duty cycle on the output pin's timer.
+The last part is mostly handled by the TimerOne library.
+
+The samples coming in are 8-bit mono, and our serial read speed maxes out at
+115200 bits/second = 14400 bytes/second. I've set the arduino PWM update rate at
+8kHz; that is, we send a new sample to the timer 8000 times/second. Arduino runs
+at 16MHz, so this gives us a budget of 2000 clock cycles per sample.
+
+
+Mapping each sample to PWM duty
+-------------------------------
+
+A sample value of 128 is silence; 255 and 0 are the extremes. I handle this
+inside `sqrt_map`, which is a precomputed table of values for this function:
+
+  sqrt_map[i] == (int) (256.0 * sqrt(abs(i - 128) / 128.0))
+
+I've personally found sqrt to be helpful; it seems to result in a less spiky
+signal. Your mileage may vary, though; if you want to try a linear version, you
+can replace `sqrt_map[x]` with `(unsigned char) abs(x - 128)` near the bottom of
+this file where we emit PWM samples.
+
+
+
+Scheduling
+----------
+
+Everything on the Arduino side is synchronized to `micros()`. Theoretically this
+should mean we're microsecond-exact, but I've not found that to be the case; as
+a result, the computer-side driver overfeeds the Arduino sample loop and ends up
+slowly accumulating a delay. If anyone knows a fix for this, please file an
+issue on the project.
+
+Most of the scheduling logic is managed by maintaining a `next_sample_time`
+timestamp; we then wait for `micros()` to catch up, at which point we emit the
+value. We don't use `micros()` to set `next_sample_time` while the loop is
+going; instead, we add `SAMPLE_MICROS` to the existing `next_sample_time` to
+maintain accuracy.
+
+
+Volume control
+--------------
+
+This is a potentiometer hooked up to analog pin 5 (or whatever `VOLUME_PIN` is
+set to), and whose ends are hooked to GND and 5V. Basically what you'd expect
+for the hardware side.
+
+In software, we do a few things to mitigate the jitter. The most important is
+that we sample the volume every iteration -- that is, every incoming audio
+sample -- and we maintain a circular buffer of recent values that we average
+together to get the volume reading. This works around the very real issue that
+the arduino analog read circuitry is subject to electrical jitter, some of which
+comes from the sample values being emitted from the board (since the boost
+converter and the arduino share a common power supply).
+
+The logic for the sample buffer is in a separate file, `sample-average.h`.
+
+`MAX_EFFECTIVE_VOLUME` is a way to set how intense the maximum volume should be.
+If you set it to 1024, then you get complete passthrough: the volume knob is
+interpreted in its full range. 768, which works well for me, means that full
+volume is 75% of what the circuitry is capable of emitting.
+
+
+PWM frequency recalculation
+---------------------------
+
+Due to switching losses and, I assume, the way nerves work, higher PWM
+frequencies result in more current consumption for less sensation. It's a milder
+feel, which is good, but if you want intensity you're likely to end up with
+electrical burns if you use a high frequency.
+
+To reduce this risk, this code varies the PWM frequency based on the volume. The
+frequency range is controlled by two variables, `LOW_HZ` and `HIGH_HZ`, which
+indicate the PWM frequency at min and max volume, respectively. `HIGH_HZ` should
+always be less than `LOW_HZ`. The default varies from 8000Hz (very soft) to
+4000Hz (moderately intense).
+
+If you want more intensity from this system, the first thing you should do is
+try decreasing `HIGH_HZ`; 1000Hz and below can be very intense without using
+very much power.
+
+There's a small delay and potentially a skip when recalculating the PWM
+frequency, so we only do it when the volume changes by more than
+`VOLUME_TOLERANCE`, which is 16 by default. This way we don't get bouncy
+recalculations if we pick up some jitter.
+
+*/
+
 
 // Build parameter definitions
-#define STEREO        0
-#define LED_UNDERFLOW 1
+#define STEREO        0     // Are we reading two 8-bit samples at a time?
+#define LED_UNDERFLOW 1     // Blink LED pin 13 when we have buffer underflows?
 
-#define SAMPLE_HZ     8000
+#define SAMPLE_HZ     8000  // How often we send new PWM samples to the timer
 #define SAMPLE_MICROS (1000000 / SAMPLE_HZ)
 
-#define LOW_HZ  8000
-#define HIGH_HZ 4000
+#define LOW_HZ  8000        // PWM frequency at volume = 0
+#define HIGH_HZ 4000        // PWM frequency at max volume
+
+#define VOLUME_PIN 5        // Analog pin hooked up to volume potentiometer
+#define VOLUME_TOLERANCE 16 // When volume changes this much, recalculate PWM
+#define VOLUME_SAMPLES 128  // Number of samples in windowed average
 
 #define MAX_EFFECTIVE_VOLUME 768
 
 
-// Build parameter verification/supoort
+// Build parameter verification
 #if SAMPLE_HZ * (1 + STEREO) > 115200 / 8
 #  error sample rate exceeds bandwidth capacity
 #endif
@@ -31,7 +128,7 @@
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |=  _BV(bit))
 
 
-sample_average<128> vol_samples;
+sample_average<VOLUME_SAMPLES> vol_samples;
 
 int last_volume   = 0;
 int buffer_target = SERIAL_RX_BUFFER_SIZE - 4;
@@ -110,12 +207,12 @@ void loop()
         Serial.read();
       }
 
-    vol_samples << analogRead(5);
+    vol_samples << analogRead(VOLUME_PIN);
 
     let volume    = vol_samples.mean();
     let amplitude = scale_volume(volume);
 
-    if (abs(volume - last_volume) > 16)
+    if (abs(volume - last_volume) > VOLUME_TOLERANCE)
     {
       // Recalculate PWM frequency. We want minimum volume to correspond to
       // about 10kHz and maximum volume to be 4kHz -- so a PWM duration range of
