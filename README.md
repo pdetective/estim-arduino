@@ -13,7 +13,7 @@ Core concepts worth thinking about:
 Building the L298N board:
 
 - [Shopping list](doc/shopping-list.md)
-- [Electrical connections](doc/schematic.md)
+- [Schematic](doc/schematic.md)
 - [Building the board](doc/build.md)
 
 
@@ -41,6 +41,9 @@ recommend doing:
    a gradual rise in current. If there's a huge spike from standby to 2A, then
    something is wrong. If there's no current rise at all, then that's also a
    problem.
+4. Tap the outputs together briefly before connecting them to you. This isn't a
+   safety issue, it just makes sure there's no stored energy in the output
+   isolation capacitors.
 
 
 The Software
