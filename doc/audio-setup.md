@@ -34,3 +34,13 @@ aplay -f cd < file.raw          # this should play signal audio
 ```
 
 If this all works, then you're ready to send data to the Arduino.
+
+
+Using stereo audio with mono hardware
+-------------------------------------
+
+Stereo EStim signals tend to cancel each other out if you downmix them to mono;
+what you want to do instead is just select one channel or the other. I recommend
+configuring the audio balance to 100% right or 100% left.
+
+**TODO:** Update this project to accept stereo input
