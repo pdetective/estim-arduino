@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# You may need to change this depending on what your arduino does
+dev=/dev/ttyACM0
+
 if [[ $1 != '--run' ]]; then
   cat <<'EOF'
 Audio run script
@@ -20,7 +23,6 @@ EOF
   exit 1
 fi
 
-dev=/dev/ttyACM0
 stty -F $dev 115200 cs8 min 1 -cstopb -parenb
 
 cat $dev &
