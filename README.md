@@ -27,4 +27,5 @@ The Software
 Audio interop
 -------------
 
-TODO
+- [Setting up your audio device](doc/audio-setup.md)
+- [Audio send script](./send-audio)

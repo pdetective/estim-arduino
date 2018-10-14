@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [[ $1 != '--run' ]]; then
+  cat <<'EOF'
+Audio run script
+================
+
+Initializes your serial driver (usually either `/dev/ttyACM0` or `/dev/ttyUSB0`)
+and uses `arecord` to send audio data to it.
+
+To use this script, pass `--run` as the first argument:
+
+  ./send-audio --run
+
+This script runs `cat` on the serial line in the background so we can catch
+debugging prints from the arduino. You wouldn't use this in practice because the
+delays would cause breaks in the output signal, but it's useful if you have a
+problem.
+EOF
+  exit 1
+fi
+
+dev=/dev/ttyACM0
+stty -F $dev 115200 cs8 min 1 -cstopb -parenb
+
+cat $dev &
+pid=$!
+arecord -f U8 -t raw -r 12000 -N > $dev
+kill $pid
